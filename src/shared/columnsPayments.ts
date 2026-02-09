@@ -5,7 +5,7 @@ const numberFormatter = new Intl.NumberFormat('ru-RU');
 export const columnsPayments: GridColDef[] = [
   {
     field: 'name',
-    flex: 1,
+    flex: 2,
     headerName: 'Bill name'
   },
   {
@@ -85,7 +85,7 @@ export const columnsPayments: GridColDef[] = [
 export const columnsSum: GridColDef[] = [
   {
     field: 'type',
-    flex: 1,
+    flex: 2,
     headerName: 'Type'
   },
   {

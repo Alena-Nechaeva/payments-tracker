@@ -132,7 +132,6 @@ export default function Home() {
               }}
             />
           </Grid>
-          <Divider component={'div'} />
           <Grid size={12}>
             <Typography variant='h5'>Amounts per type</Typography>
           </Grid>

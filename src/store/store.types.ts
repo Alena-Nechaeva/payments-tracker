@@ -4,6 +4,7 @@ export type TBill = {
   date: string;
   name: string;
   slug: string;
+  type: TTypeBill;
 };
 
 export type TMutResponse = {
@@ -17,6 +18,7 @@ export type TPayment = {
     id: string;
     name: string;
     slug: string;
+    type: TTypeBill;
   };
   amount: number;
 };
@@ -33,3 +35,5 @@ export type TPaymentsResponse = {
     };
   }[];
 };
+
+export type TTypeBill = 'bill' | 'other';

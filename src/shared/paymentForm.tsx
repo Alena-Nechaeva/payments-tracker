@@ -21,7 +21,7 @@ export function PaymentForm() {
     const monthPayments = paymentsData?.payments.find(p => p.month === month?.toLowerCase());
     const filteredBills = billsData.bills.filter(b => b.enabled);
     return filteredBills.map(b => ({
-      bill: { name: b.name, id: b.id, slug: b.slug },
+      bill: { name: b.name, id: b.id, slug: b.slug, type: b.type },
       amount: monthPayments?.payments.find(p => p.bill.id === b.id)?.amount.toString() ?? ''
     }));
   }, [billsData, billsSuccess, month, paymentsData?.payments, paymentsSuccess]);

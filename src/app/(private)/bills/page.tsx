@@ -1,6 +1,19 @@
 'use client';
 
-import { Button, Card, CardContent, Divider, Grid, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useAddBillMutation, useEditBillMutation, useGetBillsQuery } from '@/src/store/api';
 import { useEffect, useState } from 'react';
@@ -8,24 +21,32 @@ import { toast } from 'react-toastify';
 import { currentBillSelect, setCurrentBill } from '@/src/store/store.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { columnsBills } from '@/src/app/(private)/bills/columnsBills';
+import { TTypeBill } from '@/src/store/store.types';
 
 export default function BillsPage() {
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
   const currentBill = useSelector(currentBillSelect);
+  const [name, setName] = useState('');
+  const [type, setType] = useState<TTypeBill>('bill');
+  const [loading, setLoading] = useState(false);
   const { data, isError, isLoading } = useGetBillsQuery();
   const [addBill] = useAddBillMutation();
   const [editBill] = useEditBillMutation();
   const dispatch = useDispatch();
 
+  const onTypeChange = (event: SelectChangeEvent) => {
+    setType(event.target.value as TTypeBill);
+  };
+
   async function createOrUpdateBill() {
     setLoading(true);
     try {
-      const response = currentBill ? await editBill({ name, billId: currentBill.id }).unwrap() : await addBill({ name }).unwrap();
+      const response = currentBill
+        ? await editBill({ name, billId: currentBill.id, type }).unwrap()
+        : await addBill({ name, type }).unwrap();
       toast.success(response?.message ?? (currentBill ? 'Bill updated successfully' : 'Bill created successfully'));
       setName('');
     } catch (error: any) {
-      toast.error(error?.data?.error ?? (currentBill ? 'Failed to pupdate bill' : 'Failed to create bill'));
+      toast.error(error?.data?.error ?? (currentBill ? 'Failed to update bill' : 'Failed to create bill'));
     } finally {
       dispatch(setCurrentBill(null));
       setLoading(false);
@@ -35,6 +56,7 @@ export default function BillsPage() {
   useEffect(() => {
     if (currentBill) {
       setName(currentBill.name);
+      setType(currentBill.type);
     }
   }, [currentBill]);
 
@@ -52,20 +74,29 @@ export default function BillsPage() {
             <Typography variant='h5'>Bills</Typography>
           </Grid>
 
-          <Grid size={{ xs: 12 }}>
+          <Grid size={12}>
             <Divider component={'div'} sx={{ mb: 2 }} />
-            <div className={'flex items-center gap-4'}>
-              <TextField
-                label={'Create new bill'}
-                variant='outlined'
-                sx={{ width: '40%' }}
-                value={name}
-                onChange={e => setName(e.target.value)}
-              />
-              <Button variant={'contained'} onClick={createOrUpdateBill} loading={loading} sx={{ py: 1.9 }}>
-                {currentBill ? 'Update bill' : 'Create bill'}
-              </Button>
-            </div>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 5 }}>
+                <FormControl fullWidth>
+                  <TextField label={'Bill name'} variant='outlined' value={name} onChange={e => setName(e.target.value)} />
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, md: 5 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Bill type</InputLabel>
+                  <Select value={type} label='Bill type' onChange={onTypeChange}>
+                    <MenuItem value={'bill'}>Bill</MenuItem>
+                    <MenuItem value={'other'}>Other</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, md: 2 }}>
+                <Button fullWidth variant={'contained'} onClick={createOrUpdateBill} loading={loading} sx={{ py: 1.9 }}>
+                  {currentBill ? 'Update bill' : 'Create bill'}
+                </Button>
+              </Grid>
+            </Grid>
             <Divider component={'div'} sx={{ mt: 2 }} />
           </Grid>
 

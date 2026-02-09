@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { TBill, TMutResponse, TPayment, TPaymentsResponse } from '@/src/store/store.types';
+import { TBill, TMutResponse, TPayment, TPaymentsResponse, TTypeBill } from '@/src/store/store.types';
 import { auth } from '@/src/lib/firebase/client';
 
 export const paymentsApi = createApi({
@@ -21,7 +21,7 @@ export const paymentsApi = createApi({
       query: () => `/bills`,
       providesTags: ['Bills']
     }),
-    addBill: build.mutation<TMutResponse, { name: string }>({
+    addBill: build.mutation<TMutResponse, { name: string; type: TTypeBill }>({
       query: body => {
         return {
           url: `/bills`,
@@ -40,12 +40,12 @@ export const paymentsApi = createApi({
       },
       invalidatesTags: result => (!result ? [] : ['Bills'])
     }),
-    editBill: build.mutation<TMutResponse, { name: string; billId: string }>({
-      query: ({ name, billId }) => {
+    editBill: build.mutation<TMutResponse, { name: string; billId: string; type: TTypeBill }>({
+      query: ({ name, billId, type }) => {
         return {
           url: `/bills/${billId}`,
           method: 'PUT',
-          body: { name }
+          body: { name, type }
         };
       },
       invalidatesTags: result => (!result ? [] : ['Bills'])

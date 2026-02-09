@@ -1,11 +1,13 @@
 'use client';
 
-import { Card, CardContent, Grid, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Grid, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { columnsPayments } from '@/src/shared/columnsPayments';
+import { columnsPayments, columnsSum } from '@/src/shared/columnsPayments';
 import { useGetBillsQuery, useGetPaymentsQuery } from '@/src/store/api';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { TTypeBill } from '@/src/store/store.types';
+import { months } from '@/src/assets/months';
 
 export default function Home() {
   const { data: paymentsData, isError: paymentsError, isLoading: paymentsLoading } = useGetPaymentsQuery();
@@ -20,8 +22,16 @@ export default function Home() {
       isLoading
     })
   });
+  const makeEmptyRow = (type: TTypeBill) =>
+    months.reduce(
+      (acc, m) => {
+        acc[m] = 0;
+        return acc;
+      },
+      { id: type, type: type.toUpperCase() } as Record<string, string | number>
+    );
 
-  const rows = () => {
+  const rowsGeneral = () => {
     if (!paymentsData?.payments || !billsData) return [];
 
     // Создаем Map: billId -> { id, name, january, february, ... }
@@ -62,6 +72,25 @@ export default function Home() {
     return Array.from(billsMap.values());
   };
 
+  const rowsSum = () => {
+    if (!paymentsData?.payments || !billsData) return [];
+
+    const totals = new Map<TTypeBill, Record<string, string | number>>([
+      ['bill', makeEmptyRow('bill')],
+      ['other', makeEmptyRow('other')]
+    ]);
+
+    paymentsData.payments.forEach(monthPayments => {
+      const monthKey = monthPayments.month.toLowerCase();
+
+      monthPayments.payments.forEach(p => {
+        const row = totals.get(p.bill.type)!;
+        row[monthKey] = Number(row[monthKey] ?? 0) + Number(p.amount ?? 0);
+      });
+    });
+    return Array.from(totals.values());
+  };
+
   useEffect(() => {
     if (billsError) {
       toast.error('Failed to get bills');
@@ -76,7 +105,7 @@ export default function Home() {
     <Card>
       <CardContent>
         <Grid container spacing={6}>
-          <Grid size={{ xs: 12 }}>
+          <Grid size={12}>
             <Typography variant='h5'>Payments</Typography>
           </Grid>
 
@@ -84,8 +113,35 @@ export default function Home() {
             <DataGrid
               autoHeight
               pageSizeOptions={[15, 25, 50]}
-              rows={rows()}
+              rows={rowsGeneral()}
               columns={columnsPayments}
+              disableColumnFilter
+              disableColumnMenu
+              disableDensitySelector
+              disableColumnSelector
+              disableRowSelectionOnClick
+              loading={billsLoading || paymentsLoading}
+              checkboxSelection={false}
+              initialState={{
+                pagination: {
+                  paginationModel: { pageSize: 15, page: 0 }
+                },
+                sorting: {
+                  sortModel: [{ field: 'id', sort: 'desc' }]
+                }
+              }}
+            />
+          </Grid>
+          <Divider component={'div'} />
+          <Grid size={12}>
+            <Typography variant='h5'>Amounts per type</Typography>
+          </Grid>
+          <Grid size={12}>
+            <DataGrid
+              autoHeight
+              pageSizeOptions={[15, 25, 50]}
+              rows={rowsSum()}
+              columns={columnsSum}
               disableColumnFilter
               disableColumnMenu
               disableDensitySelector

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/src/lib/firebase/requireUser';
 import { adminDb } from '@/src/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { TTypeBill } from '@/src/store/store.types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     await requireUser(request);
 
-    const body: { name: string } = await request.json();
+    const body: { name: string; type: TTypeBill } = await request.json();
 
     if (!body.name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
         .replace(/[^a-z0-9\s-]/g, '')
         .trim()
         .replace(/\s+/g, '-'),
+      type: body.type,
       enabled: true,
       date: FieldValue.serverTimestamp()
     });

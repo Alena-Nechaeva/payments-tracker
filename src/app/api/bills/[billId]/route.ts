@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/src/lib/firebase/requireUser';
 import { adminDb } from '@/src/lib/firebase/admin';
+import { TTypeBill } from '@/src/store/store.types';
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ billId: string }> }) {
   try {
@@ -35,7 +36,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     await requireUser(request);
 
     const { billId } = await params;
-    const body: { name: string } = await request.json();
+    const body: { name: string; type: TTypeBill } = await request.json();
 
     const billRef = adminDb.collection('bills').doc(billId);
     const billDoc = await billRef.get();
@@ -44,8 +45,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
     }
 
-    if (!body.name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (!body.name || !body.type) {
+      return NextResponse.json({ error: 'Name and type are required' }, { status: 400 });
     }
 
     await billRef.update({
@@ -56,7 +57,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9\s-]/g, '')
         .trim()
-        .replace(/\s+/g, '-')
+        .replace(/\s+/g, '-'),
+      type: body.type
     });
 
     return NextResponse.json(

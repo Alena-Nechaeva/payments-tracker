@@ -1,10 +1,11 @@
-import { TextField } from '@mui/material';
+import { InputAdornment, TextField } from '@mui/material';
 import { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import CheckIcon from '@/src/assets/icons/check';
 import { useTheme } from '@mui/system';
 import BlockIcon from '@/src/assets/icons/block';
 import { TBill } from '@/src/store/store.types';
 import { TPaymentLocal } from '@/src/shared/paymentForm';
+import IconAdornment from '@/src/shared/IconAdornment';
 
 type PaymentLineProps = {
   bill: TBill;
@@ -30,21 +31,24 @@ export default function PaymentLine({ bill, amount, setPaymentsPerMonth }: Payme
 
   return (
     <div className={'w-full flex gap-4 items-center'}>
-      <TextField
-        fullWidth
-        defaultValue={bill.name}
-        slotProps={{
-          input: {
-            readOnly: true
-          }
-        }}
-      />
-      <TextField fullWidth label={'Amount'} value={amount} onChange={onAmountChange} />
       {amount === '' || amount === '0' ? (
         <BlockIcon sx={{ color: theme.palette.error.main, width: 28, height: 28 }} />
       ) : (
         <CheckIcon sx={{ color: theme.palette.success.main, width: 28, height: 28 }} />
       )}
+      <TextField
+        fullWidth
+        defaultValue={bill.name}
+        slotProps={{
+          input: {
+            endAdornment: <InputAdornment position='end' >
+              <IconAdornment slug={bill.slug} />
+            </InputAdornment>,
+            readOnly: true
+          }
+        }}
+      />
+      <TextField fullWidth label={'Amount'} value={amount} onChange={onAmountChange} />
     </div>
   );
 }

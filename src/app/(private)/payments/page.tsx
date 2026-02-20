@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setCurrentMonth } from '@/src/store/store.slice';
 
 export default function PaymentsPage() {
+  const currentMonth = new Date().getMonth();
   const dispatch = useDispatch();
   const [expanded, setExpanded] = useState<string | false>(false);
 
@@ -28,18 +29,20 @@ export default function PaymentsPage() {
           </Grid>
 
           <Grid size={12}>
-            {months.map(month => {
+            {months.map((month, ind) => {
               return (
-                <Accordion key={month} expanded={expanded === month} onChange={handleChange(month)}>
-                  <AccordionSummary expandIcon={<ArrowIcon />}>
-                    <Typography className='gradient-text' variant={'h5'} fontWeight={600}>
-                      {month}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <PaymentForm />
-                  </AccordionDetails>
-                </Accordion>
+                ind <= currentMonth && (
+                  <Accordion key={month} expanded={expanded === month} onChange={handleChange(month)}>
+                    <AccordionSummary expandIcon={<ArrowIcon />}>
+                      <Typography className='gradient-text' variant={'h5'} fontWeight={600}>
+                        {month}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <PaymentForm />
+                    </AccordionDetails>
+                  </Accordion>
+                )
               );
             })}
           </Grid>

@@ -8,6 +8,7 @@ import GastosIcon from '@/src/assets/icons/gastos';
 import EnelIcon from '@/src/assets/icons/enel';
 import DanceIcon from '@/src/assets/icons/dance';
 import TarjetaIcon from '@/src/assets/icons/tarjeta';
+import CardTime from '@/src/assets/icons/cardTime';
 
 const iconMap: Record<string, React.ElementType> = {
   agua: AguaIcon,
@@ -20,7 +21,8 @@ const iconMap: Record<string, React.ElementType> = {
   entel: MovistarIcon,
   tags: TagsIcon,
   tarjeta: TarjetaIcon,
-  hogar: InternetIcon
+  hogar: InternetIcon,
+  left: CardTime
 };
 
 export default function IconAdornment({ slug }: { slug: string }) {
